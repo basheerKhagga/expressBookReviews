@@ -112,26 +112,7 @@ public_users.get("/isbn/:isbn", async function (req, res) { // Write your code h
 });
 
 
-// // Get book details based on author
-// public_users.get('/author/:author', function (req, res) {
-//     //Write your code here
-//     if (req.params.author) {
-//         const author = req.params.author;
-//         const keys = Object.keys(books);
-//         let filteredbooks = [];
-//         for (const key of keys) {
-//             if (books[key].author === author) {
-//                 filteredbooks.push(books[key]);
-//                 console.log(`Book ${key} is written by ${author}`);
-//             }
-//         }
-//         return res.send(filteredbooks);
-//     }
 
-//     return res.status(400).send("Invalid req");
-// }
-
-// );  
 
 // Get book details based on author
 public_users.get('/author/:author', async function (req, res) {
@@ -164,25 +145,40 @@ public_users.get('/author/:author', async function (req, res) {
 );
 
 
-
-
 // Get all books based on title
-public_users.get('/title/:title', function (req, res) {
+public_users.get('/title/:title', async function (req, res) {
     if (req.params.title) {
-        const title = req.params.title;
-        const keys = Object.keys(books);
-        let filteredbooks = [];
+      const title = req.params.title;
+      const keys = Object.keys(books);
+      let filteredbooks = [];
+      try {
         for (const key of keys) {
+          // Use a promise to check if the book title matches
+          let match = await new Promise((resolve, reject) => {
             if (books[key].title === title) {
-                filteredbooks.push(books[key]);
-                console.log(`Book ${key} is written by ${title}`);
+              resolve(true);
+            } else {
+              resolve(false);
             }
+          });
+          // If the promise resolves to true, push the book to the filtered array
+          if (match) {
+            filteredbooks.push(books[key]);
+            console.log(`Book ${key} is written by ${title}`);
+          }
         }
+        // Send the filtered array as the response
         return res.send(filteredbooks);
+      } catch (error) {
+        // Handle any errors that may occur
+        console.error(error);
+        return res.status(500).send("Something went wrong");
+      }
     }
-
+  
     return res.status(400).send("Invalid req");
-});
+  });
+  
 
 //  Get book review
 public_users.get('/review/:isbn', function (req, res) {
@@ -194,5 +190,46 @@ public_users.get('/review/:isbn', function (req, res) {
 
     return res.status(300).json({ message: "Invalid req" });
 });
+
+
+// // Get book details based on author
+// public_users.get('/author/:author', function (req, res) {
+//     //Write your code here
+//     if (req.params.author) {
+//         const author = req.params.author;
+//         const keys = Object.keys(books);
+//         let filteredbooks = [];
+//         for (const key of keys) {
+//             if (books[key].author === author) {
+//                 filteredbooks.push(books[key]);
+//                 console.log(`Book ${key} is written by ${author}`);
+//             }
+//         }
+//         return res.send(filteredbooks);
+//     }
+
+//     return res.status(400).send("Invalid req");
+// }
+
+// );  
+
+
+// Get all books based on title
+// public_users.get('/title/:title', function (req, res) {
+//     if (req.params.title) {
+//         const title = req.params.title;
+//         const keys = Object.keys(books);
+//         let filteredbooks = [];
+//         for (const key of keys) {
+//             if (books[key].title === title) {
+//                 filteredbooks.push(books[key]);
+//                 console.log(`Book ${key} is written by ${title}`);
+//             }
+//         }
+//         return res.send(filteredbooks);
+//     }
+
+//     return res.status(400).send("Invalid req");
+// });
 
 module.exports.general = public_users;
