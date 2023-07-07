@@ -43,21 +43,7 @@ let myPromise = new Promise((resolve, reject) => {
     }
 });
 
-public_users.use("/",
-    (req, res, next) => {
-        public_users.get('/', function (req, res) {
-            //Write your code here
-            myPromise.then((successMessage) => {
-                console.log("From Callback " + successMessage)
-            }).catch((err) => {
-                // if the promise is rejected, log the error
-                console.error(err);
-            });
-            return res.status(200).send(" Here is the list of all books <br>" + JSON.stringify(books, null, 4));
-        });
 
-    }
-);
 
 // Get the book list available in the shop
 public_users.get('/', function (req, res) {
@@ -112,7 +98,26 @@ public_users.get("/isbn/:isbn", async function (req, res) { // Write your code h
 });
 
 
+// // Get book details based on author
+// public_users.get('/author/:author', function (req, res) {
+//     //Write your code here
+//     if (req.params.author) {
+//         const author = req.params.author;
+//         const keys = Object.keys(books);
+//         let filteredbooks = [];
+//         for (const key of keys) {
+//             if (books[key].author === author) {
+//                 filteredbooks.push(books[key]);
+//                 console.log(`Book ${key} is written by ${author}`);
+//             }
+//         }
+//         return res.send(filteredbooks);
+//     }
 
+//     return res.status(400).send("Invalid req");
+// }
+
+// );  
 
 // Get book details based on author
 public_users.get('/author/:author', async function (req, res) {
@@ -121,22 +126,27 @@ public_users.get('/author/:author', async function (req, res) {
         const author = req.params.author;
         const keys = Object.keys(books);
         let promises = [];
+        let selectedBooks = [];
         for (const key of keys) {
             promises.push(new Promise((resolve, reject) => {
                 if (books[key].author === author) {
                     resolve(books[key]);
+                    selectedBooks.push(books[key]);
                     console.log(`Book ${key} is written by ${author}`);
                 } else {
                     reject(`Book ${key} is not written by ${author}`);
                 }
             }));
         }
-        try {
-            let filteredbooks = await Promise.all(promises);
-            return res.send(filteredbooks);
-        } catch (error) {
-            return res.status(500).send(error);
-        }
+        res.send(selectedBooks);
+        // try {
+        //     let filteredbooks = await Promise.all(promises);
+        //     console.log(selectedBooks);
+        //     return 
+        // } catch (error) {
+        //     console.log(error);
+        //     return res.status(500).send(error);
+        // }
     }
 
     return res.status(400).send("Invalid req");
@@ -144,6 +154,25 @@ public_users.get('/author/:author', async function (req, res) {
 
 );
 
+
+
+// Get all books based on title
+// public_users.get('/title/:title', function (req, res) {
+//     if (req.params.title) {
+//         const title = req.params.title;
+//         const keys = Object.keys(books);
+//         let filteredbooks = [];
+//         for (const key of keys) {
+//             if (books[key].title === title) {
+//                 filteredbooks.push(books[key]);
+//                 console.log(`Book ${key} is written by ${title}`);
+//             }
+//         }
+//         return res.send(filteredbooks);
+//     }
+
+//     return res.status(400).send("Invalid req");
+// });
 
 // Get all books based on title
 public_users.get('/title/:title', async function (req, res) {
@@ -192,44 +221,8 @@ public_users.get('/review/:isbn', function (req, res) {
 });
 
 
-// // Get book details based on author
-// public_users.get('/author/:author', function (req, res) {
-//     //Write your code here
-//     if (req.params.author) {
-//         const author = req.params.author;
-//         const keys = Object.keys(books);
-//         let filteredbooks = [];
-//         for (const key of keys) {
-//             if (books[key].author === author) {
-//                 filteredbooks.push(books[key]);
-//                 console.log(`Book ${key} is written by ${author}`);
-//             }
-//         }
-//         return res.send(filteredbooks);
-//     }
-
-//     return res.status(400).send("Invalid req");
-// }
-
-// );  
 
 
-// Get all books based on title
-// public_users.get('/title/:title', function (req, res) {
-//     if (req.params.title) {
-//         const title = req.params.title;
-//         const keys = Object.keys(books);
-//         let filteredbooks = [];
-//         for (const key of keys) {
-//             if (books[key].title === title) {
-//                 filteredbooks.push(books[key]);
-//                 console.log(`Book ${key} is written by ${title}`);
-//             }
-//         }
-//         return res.send(filteredbooks);
-//     }
 
-//     return res.status(400).send("Invalid req");
-// });
 
 module.exports.general = public_users;
